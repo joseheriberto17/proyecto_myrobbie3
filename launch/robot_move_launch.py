@@ -16,13 +16,14 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
     
-    
+   # argumentos para rsp_node
    package_dir = FindPackageShare('proyecto_myrobbie3')
    urdf_path = PathJoinSubstitution([package_dir, 'robot.urdf.xacro'])
    sim_time = True
 
    robot_description_content = ParameterValue(Command(['xacro ', urdf_path]), value_type=str)
 
+   # nodo para publicar el estado cinemático de un robot en el sistema de coordenadas del robot.
    rsp_node = Node(package='robot_state_publisher',
                executable='robot_state_publisher',
                parameters=[{
@@ -30,22 +31,19 @@ def generate_launch_description():
                   'use_sim_time': sim_time
                }])
 
+   # lanzamiento para inicializar el programa de gazebo. 
    gazebo = IncludeLaunchDescription(
                PythonLaunchDescriptionSource([os.path.join(
                   get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
             )
 
-   # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
+   #nodo para agregar modelos, robots u otros objetos al entorno de simulación en Gazebo.
    spawn_entity = Node(package='gazebo_ros', 
                        executable='spawn_entity.py',
                        arguments=['-topic', 'robot_description','-entity', 'my_bot'],
                        output='screen')
 
-   # Launch them all!
-   
-   
-
-
+   # ejecucion de cada nodo.
    return LaunchDescription([
    rsp_node,
    gazebo,

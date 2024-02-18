@@ -5,7 +5,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, TextSubstitution
 
-
+# este launch ejecuta rviz y joint_state_plublisher de modelo de robot  para hacer inpeccion de modelos solo con rviz2
 def generate_launch_description():
    data = IncludeLaunchDescription(
       PythonLaunchDescriptionSource([

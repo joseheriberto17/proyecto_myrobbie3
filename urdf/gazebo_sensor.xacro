@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+  <gazebo reference="laser_frame">
+    <sensor type="ray" name="head_sensor">
+      <!-- Posición del sensor en relación al modelo base -->
+      <pose>0 0 0 0 0 0</pose>
+      <!-- Indica si se visualiza o no el sensor -->
+      <visualize>true</visualize>
+      <!-- Tasa de actualización del sensor en Hz -->
+      <update_rate>40</update_rate>
+      <ray>
+        <!-- Configuración del haz de rayos -->
+        <scan>
+          <!-- Configuración horizontal del haz -->
+          <horizontal>
+            <!-- Número de muestras de rayos -->
+            <samples>720</samples>
+            <!-- Resolución angular de los rayos en radianes -->
+            <resolution>1</resolution>
+            <!-- Ángulo mínimo del haz -->
+            <min_angle>-1.570796</min_angle>
+            <!-- Ángulo máximo del haz -->
+            <max_angle>1.570796</max_angle>
+          </horizontal>
+        </scan>
+        <!-- Rango de detección del sensor -->
+        <range>
+          <!-- Distancia mínima detectable -->
+          <min>0.08</min>
+          <!-- Distancia máxima detectable -->
+          <max>0.66</max>
+          <!-- Resolución de la distancia detectable -->
+          <resolution>0.001</resolution>
+        </range>
+        <!-- Configuración del ruido del sensor -->
+        <noise>
+          <!-- Tipo de ruido -->
+          <type>gaussian</type>
+          <!-- Parámetros del ruido basados en especificaciones publicadas para el láser Hokuyo,
+               logrando una precisión de "+-30mm" a una distancia < 10m. Una media de 0.0m y
+               desviación estándar de 0.01m pondrán el 99.7% de las muestras dentro de 0.03m de la lectura real. -->
+          <mean>0.0</mean>
+          <stddev>0.003</stddev>
+        </noise>
+      </ray>
+      <!-- Plugin que controla la simulación del sensor Hokuyo -->
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+        <!-- Tópico donde se publican las lecturas del láser -->
+        <topicName>sensor_msgs/LaserScan</topicName>
+        <!-- Marco de referencia asociado al sensor -->
+        <frameName>laser_frame</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+
+</robot>

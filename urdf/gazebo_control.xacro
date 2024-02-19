@@ -5,38 +5,24 @@
     <gazebo>
         <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
 
-            <!-- wheels information -->
-
+            <!-- Replace camelCase elements with camel_case ones -->
+            <update_rate>500</update_rate>
             <!-- Nombre de la articulación izquierda, por defecto es `left_joint` -->
             <left_joint>left_wheel_joint</left_joint>
-              <!-- Nombre de la articulación derecha, por defecto es `right_joint` -->
+            <!-- Nombre de la articulación derecha, por defecto es `right_joint` -->
             <right_joint>right_wheel_joint</right_joint>
             <!-- La distancia desde el centro de una rueda hasta la otra, en metros, por defecto es 0.34 m -->
             <wheel_separation>0.093</wheel_separation>
             <!-- Diámetro de las ruedas, en metros, por defecto es 0.15 m -->
             <wheel_diameter>0.028</wheel_diameter>
-
-            <!-- limits -->
+            <!-- Marco de referencia de la odometría, por defecto es `odom` -->
+            <odometry_frame>odom</odometry_frame>
 
             <!-- Máximo torque que las ruedas pueden producir, en Nm, por defecto es 5 Nm -->
             <max_wheel_torque>0.007</max_wheel_torque>
             <!-- Aceleración de las ruedas, en rad/s^2, por defecto es 0.0 rad/s^2 -->
-            <max_wheel_acceleration>2.5</max_wheel_acceleration>
-
-            <!-- outputs -->
-
-            <!-- Marco de referencia de la odometría, por defecto es `odom` -->
-            <odometry_frame>odom</odometry_frame>
-            <!-- Marco del robot para calcular la odometría, por defecto es `base_footprint` -->
-            <robot_base_frame>chassis</robot_base_frame>
-
-            <!-- Establecer en true para publicar transformaciones para la odometría, por defecto es true -->
-            <publish_odom>true</publish_odom>
-            <publish_odom_tf>true</publish_odom_tf>
-            <!-- Establecer en true para publicar transformaciones para los enlaces de las ruedas, por defecto es false -->
-            <publish_wheel_tf>true</publish_wheel_tf>
+            <max_acceleration>2.5</max_acceleration>
 
         </plugin>
     </gazebo>
-
 </robot>

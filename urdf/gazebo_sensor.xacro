@@ -1,56 +1,51 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
   <gazebo reference="laser_frame">
-    <sensor type="ray" name="head_sensor">
-      <!-- Posición del sensor en relación al modelo base -->
-      <pose>0 0 0 0 0 0</pose>
-      <!-- Indica si se visualiza o no el sensor -->
-      <visualize>true</visualize>
-      <!-- Tasa de actualización del sensor en Hz -->
-      <update_rate>40</update_rate>
-      <ray>
-        <!-- Configuración del haz de rayos -->
-        <scan>
-          <!-- Configuración horizontal del haz -->
-          <horizontal>
-            <!-- Número de muestras de rayos -->
-            <samples>720</samples>
-            <!-- Resolución angular de los rayos en radianes -->
-            <resolution>1</resolution>
-            <!-- Ángulo mínimo del haz -->
-            <min_angle>-1.570796</min_angle>
-            <!-- Ángulo máximo del haz -->
-            <max_angle>1.570796</max_angle>
-          </horizontal>
-        </scan>
-        <!-- Rango de detección del sensor -->
-        <range>
-          <!-- Distancia mínima detectable -->
-          <min>0.08</min>
-          <!-- Distancia máxima detectable -->
-          <max>0.66</max>
-          <!-- Resolución de la distancia detectable -->
-          <resolution>0.001</resolution>
-        </range>
-        <!-- Configuración del ruido del sensor -->
-        <noise>
-          <!-- Tipo de ruido -->
-          <type>gaussian</type>
-          <!-- Parámetros del ruido basados en especificaciones publicadas para el láser Hokuyo,
-               logrando una precisión de "+-30mm" a una distancia < 10m. Una media de 0.0m y
-               desviación estándar de 0.01m pondrán el 99.7% de las muestras dentro de 0.03m de la lectura real. -->
-          <mean>0.0</mean>
-          <stddev>0.003</stddev>
-        </noise>
-      </ray>
-      <!-- Plugin que controla la simulación del sensor Hokuyo -->
-      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
-        <!-- Tópico donde se publican las lecturas del láser -->
-        <topicName>sensor_msgs/LaserScan</topicName>
-        <!-- Marco de referencia asociado al sensor -->
-        <frameName>laser_frame</frameName>
-      </plugin>
-    </sensor>
+    <material>Gazebo/Red</material>
+      <sensor type="ray" name="range_sensor">
+
+        <visualize>true</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>10</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.185</min_angle>
+              <max_angle>0.251</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>10</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.185</min_angle>
+              <max_angle>0.251</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.100</min>
+            <max>0.600</max>
+            <resolution>0.003</resolution>
+          </range>
+          <!-- Using gazebo's noise instead of plugin's -->
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.003</stddev>
+          </noise>
+        </ray>
+        <!-- Using gazebo's update rate instead of plugin's -->
+        <update_rate>30</update_rate>
+        <plugin name="gazebo_ros_range_controller" filename="libgazebo_ros_ray_sensor.so">
+          <!-- Change namespace and output topic so published topic is /rrbot/laser/scan -->
+          <ros>
+            <namespace>/rrbot</namespace>
+            <remapping>~/out:=range</remapping>
+          </ros>
+          <!-- Set output to sensor_msgs/Range to get same output type as gazebo_ros_range -->
+          <output_type>sensor_msgs/Range</output_type>
+          <!-- <frame_name> ommited, will default to range_link -->
+          <frame_name>laser_frame</frame_name>
+        </plugin>
+      </sensor>
   </gazebo>
 
 

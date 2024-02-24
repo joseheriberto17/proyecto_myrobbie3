@@ -2,12 +2,15 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:include filename="inertial_macros.xacro"/>
+    <xacro:include filename="gazebo_sensor.xacro"/>
 
     <!-- dimension de las piezas de robot -->
     <xacro:property name="ancho_r" value="0.005" />
     <xacro:property name="radio_r" value="0.014" />
     <xacro:property name="radio_e" value="0.01" />
 
+    <!-- distribucion de angulos -->
+    <xacro:property name="angle_sensor" value="45" />
 
     <!-- link para la odometria -->
     <link name="base_footprint">
@@ -138,28 +141,32 @@
         <visual>
             <origin xyz="0.0 0 0.0"/>
             <geometry>
-                <box size="0.04 0.04 0.02"/>
+                <cylinder radius="0.06" length="0.01"/>
             </geometry>
             <material name="blue"/>
         </visual>
         <collision>
             <origin xyz="0.0 0.0 0.0"/>
             <geometry>
-                <box size="0.04 0.04 0.02"/>
+                <cylinder radius="0.06" length="0.01"/>
             </geometry>
         </collision>
-
-        <xacro:inertial_box mass="0.02" x="0.04" y="0.04" z="0.02">
-            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-        </xacro:inertial_box>
     </link>
 
     <joint name="joint_chassis" type="fixed">
-        <origin xyz="0.0 0.0 0.055" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.0 0.0 0.055" rpy="0.0 0.0 ${radians(-90)}"/>
         <parent link="chassis"/>
         <child link="laser_frame"/>
     </joint>
 
+    <xacro:pose_sensor name_sensor="sensor_tof_1" angle="${angle_sensor*(-1 + 0.5)}" parent_link="laser_frame" />
+    <xacro:pose_sensor name_sensor="sensor_tof_2" angle="${angle_sensor*(0 + 0.5)}" parent_link="laser_frame" />
+    <xacro:pose_sensor name_sensor="sensor_tof_3" angle="${angle_sensor*(1 + 0.5)}" parent_link="laser_frame" />
+    <xacro:pose_sensor name_sensor="sensor_tof_4" angle="${angle_sensor*(2 + 0.5)}" parent_link="laser_frame" />
+    <xacro:pose_sensor name_sensor="sensor_tof_5" angle="${angle_sensor*(3 + 0.5)}" parent_link="laser_frame" />
+    <xacro:pose_sensor name_sensor="sensor_tof_6" angle="${angle_sensor*(4 + 0.5)}" parent_link="laser_frame" />
+    
+    
 
     <gazebo reference="chassis">
         <material>Gazebo/White</material>
@@ -171,6 +178,10 @@
 
     <gazebo reference="right_wheel">
         <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="laser_frame">
+        <material>Gazebo/Red</material>
     </gazebo>
 
     <gazebo reference="caster_wheel">

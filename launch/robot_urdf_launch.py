@@ -5,8 +5,17 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, TextSubstitution
 
+
+
 # este launch ejecuta rviz y joint_state_plublisher de modelo de robot  para hacer inpeccion de modelos solo con rviz2
 def generate_launch_description():
+   info =PathJoinSubstitution([
+               # buscar las carpeta de mismo paquete.
+               FindPackageShare('proyecto_myrobbie3'),
+               'config',
+               'urdf.rviz'
+            ])
+
    data = IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
             PathJoinSubstitution([
@@ -19,7 +28,8 @@ def generate_launch_description():
       # parametro como argumentos de launch
       launch_arguments={
             'urdf_package': 'proyecto_myrobbie3',
-            'urdf_package_path': 'robot.urdf.xacro'
+            'urdf_package_path': 'robot.urdf.xacro',
+            'rviz_config': info
       }.items()
    )
 

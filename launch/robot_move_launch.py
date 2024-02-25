@@ -49,7 +49,7 @@ def generate_launch_description():
    #nodo para agregar modelos, robots u otros objetos al entorno de simulación en Gazebo.
    spawn_entity = Node(package='gazebo_ros', 
                        executable='spawn_entity.py',
-                       arguments=['-topic', 'robot_description','-entity', 'my_robbie3','-y','-0.2','-Y',str(math.radians(0))],
+                       arguments=['-topic', 'robot_description','-entity', 'my_robbie3','-y','-0.2','-Y',str(math.radians(-10))],
                        output='screen')
 
    # ejecucion de cada nodo.

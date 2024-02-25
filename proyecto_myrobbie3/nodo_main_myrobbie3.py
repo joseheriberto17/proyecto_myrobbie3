@@ -1,6 +1,7 @@
 import rclpy
 from math import sin,cos,atan,radians,degrees
 from rclpy.node import Node
+from rcl_interfaces.msg import ParameterDescriptor
 
 # tipo de mensaje a publicar
 from std_msgs.msg import String
@@ -18,11 +19,15 @@ class Nodo_Myrobbie3(Node):
         self.timer_pub = 0.1  # seconds
         self.timer = self.create_timer(self.timer_pub, self.pub_callback)
 
+        # creacion de parametros
+        PD_Kc = ParameterDescriptor(description='variable proporcional del PID')
+        PD_Td = ParameterDescriptor(description='variable derivativa del PID')
+        self.declare_parameter('Kc',0.015,PD_Kc)
+        self.declare_parameter('Td',0.01,PD_Td)
+
         # self.publisher_ = self.create_publisher(String, 'topic', 10)
         # self.timer_pub = 0.05  # seconds
         # self.timer = self.create_timer(self.timer_pub, self.topic_callback)
-
-        self.subscription_1 = self.create_subscription(Twist,'cmd_vel',self.cmd_callback,10)
 
         # creacion del topicos a subscribirse
         self.subscription_1 = self.create_subscription(Range,'sensor_tof_1/range',self.tof_1_callback,10)
@@ -32,14 +37,20 @@ class Nodo_Myrobbie3(Node):
         self.subscription_5 = self.create_subscription(Range,'sensor_tof_5/range',self.tof_5_callback,10)
         self.subscription_6 = self.create_subscription(Range,'sensor_tof_6/range',self.tof_6_callback,10)
 
-        self.i = 0
-        self.set_y = 0
-        self.error = 0
-        self.linear_x = 0
-        self.angular_z = 0
+        self.range = [0,0,0,0,0,0]
+        self.limit = [0,0,0,0,0,0]      
 
-        self.range = [1,1,1,1,1,1]
-        self.limit = [0,0,0,0,0,0]
+        # datos para el controlador
+        self.u_k0 = 0 # u(k)
+        self.u_k1 = 0 #u(k-1)
+        self.e_k0 = 0 # e(k)
+        self.e_k1 = 0 # e(k-1)
+        self.e_k2 = 0 # e(k-2)
+
+        self.Td = 0
+        self.Kc = 0
+        self.Ts = self.timer_pub # tiempo de muestreo
+
 
     # funciones secundarias para el nodo
     def medir_distancia(self,msg,min_range,max_range,count):
@@ -52,55 +63,78 @@ class Nodo_Myrobbie3(Node):
 
     # callback del publicador cmd_vel 
     def pub_callback(self):
-        
-        # msg.linear.x = 0.2 # m/s
+        msg = Twist()
+        msg.linear.x = 0.08 # m/s
         
         # terminos del la estimacion angular alfa
         a = self.range[1]
         b = self.range[0]
         
+        #estimacion del error 
+        if (a == 600 or b == 600) or (a == 0 or b == 0):
 
-        #error 
-        if a == 600 or b == 600:
-            alfa = 500
-            gamma = 500
-            diff_y = 500
-            diff_z = 500
-            self.error = diff_z + diff_y
+            self.angular_z = 0.0   
 
+            # datos para el controlador
+            self.u_k0 = 0 # u(k)
+            self.u_k1 = 0 #u(k-1)
+            self.e_k0 = 0 # e(k)
+            self.e_k1 = 0 # e(k-1)
+            self.e_k2 = 0 # e(k-2)
 
+            self.publisher_.publish(msg)
+            self.get_logger().info('no hay muro')
             
         else:
-            theta = radians(45)
+            # entrada de nueva variable de parametros
+            self.Td = self.get_parameter('Td').get_parameter_value().double_value # constate derivativa
+            self.Kc = self.get_parameter('Kc').get_parameter_value().double_value # constante proporcional
             
-            L = self.linear_x*self.timer_pub
 
             # angulo del carro alfa
+            theta = radians(45)
             alfa = atan((a*cos(theta)-b)/(a*sin(theta))) + theta/2
-
             gamma = alfa-(theta/2)
- 
-            diff_y = b*cos(gamma) - 436*cos(theta/2) # 
+
+            L = msg.linear.x*self.timer_pub
             diff_z = L*sin(alfa)*1000
-            self.error = diff_z + diff_y
-        # self.publisher_.publish(msg)
-        self.get_logger().info('recibido: diff_y:"%s", '
+            diff_y = b*cos(gamma) - 436*cos(theta/2)
+
+            # estimacion de error
+            self.e_k0 = -(diff_z + diff_y)
+
+            # modelo del controlador PD
+            self.u_k0 = self.Kc*((1+self.Td/self.Ts)*self.e_k0 - (2*(self.Td/self.Ts)+1)*self.e_k1 + (self.Td/self.Ts)*self.e_k2) + self.u_k1
+
+            # salida de PID
+            msg.angular.z = self.u_k0
+
+            # desplazamiento de los registros
+            self.u_k1 = self.u_k0
+            
+            self.e_k2 = self.e_k1
+            self.e_k1 = self.e_k0
+
+            # publicacion de datos 
+            self.publisher_.publish(msg)
+            self.get_logger().info('recibido: diff_y:"%s", '
                                          'diff_z:"%s", '
                                          'alfa:"%s", '
                                          'a:"%s", '
                                          'b:"%s", '
-                                         'gamma:"%s", ' % 
+                                         'gamma:"%s", '
+                                         'u_k:"%s", '
+                                         'Kc:"%s", '
+                                         'Td:"%s", ' % 
                                          (round(diff_y,4),
                                          round(diff_z,4),
                                          round(degrees(alfa),4),
                                          a,
                                          b,
-                                         round(degrees(gamma),4)))
-        
-    #subscricion al cmd_ve
-    def cmd_callback(self,msg):
-        self.linear_x = msg.linear.x
-        self.angular_z = msg.angular.z
+                                         round(degrees(gamma),4),
+                                         self.u_k0,
+                                         self.Kc,
+                                         self.Td))    
 
     # subscripciones a los topicos de los sensores TOF    
     def tof_1_callback(self,msg):

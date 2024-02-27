@@ -25,7 +25,7 @@ def generate_launch_description():
 
    path_world = os.path.join(get_package_share_directory('proyecto_myrobbie3'), 
                                                          'world', 
-                                                         'wall.world')
+                                                         'two_walls.world')
 
    # nodo para publicar el estado cinemático de un robot en el sistema de coordenadas del robot.
    rsp_node = Node(package='robot_state_publisher',
@@ -49,7 +49,7 @@ def generate_launch_description():
    #nodo para agregar modelos, robots u otros objetos al entorno de simulación en Gazebo.
    spawn_entity = Node(package='gazebo_ros', 
                        executable='spawn_entity.py',
-                       arguments=['-topic', 'robot_description','-entity', 'my_robbie3','-y','-0.2','-Y',str(math.radians(-10))],
+                       arguments=['-topic', 'robot_description','-entity', 'my_robbie3','-y','0.0','-Y',str(math.radians(0))],
                        output='screen')
 
    # ejecucion de cada nodo.

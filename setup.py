@@ -16,7 +16,8 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name), glob('urdf/*')),
         (os.path.join('share', package_name, 'meshes'), glob(os.path.join('meshes', '*.dae'))),
-        (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.rviz'))),
+        (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.rviz'))+
+                                                        glob(os.path.join('config', '*.yaml'))),
         (os.path.join('share', package_name, 'world'), glob(os.path.join('world', '*.world'))),
     ],
     install_requires=['setuptools'],
@@ -28,7 +29,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'nodo_main_myrobbie3 = proyecto_myrobbie3.nodo_main_myrobbie3:main'
+            'nodo_main_myrobbie3 = proyecto_myrobbie3.nodo_main_myrobbie3:main',
+            'node_transfer_data = proyecto_myrobbie3.node_transfer_data:main'
         ],
     },
 )

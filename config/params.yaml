@@ -1,0 +1,19 @@
+mqtt_client:
+  ros__parameters:
+    broker:
+      host: localhost
+      port: 1883
+    bridge:
+      mqtt2ros:
+        mqtt_topics:
+          - mqtt_pub_1
+        mqtt_pub_1:
+          ros_topic: /ros_pub_1
+          primitive: true
+      ros2mqtt:
+        ros_topics:
+          - /ros_sub_1
+        /ros_sub_1:
+          mqtt_topic: mqtt_sub_1
+          primitive: true
+
